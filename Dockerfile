@@ -15,8 +15,7 @@ RUN echo "ipv6" >> /etc/modules &&\
 	cd /tmp &&\
 	git clone https://github.com/yahoo/kafka-manager &&\
 	cd /tmp/kafka-manager &&\
-	git checkout tags/${KM_VERSION} &&\
-	ls -ltr /tmp
+	git checkout tags/${KM_VERSION}
 
 RUN cd /tmp/kafka-manager &&\
 	echo 'scalacOptions ++= Seq("-Xmax-classfile-name", "200")' >> build.sbt &&\
