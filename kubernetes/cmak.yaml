@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cmak-config
+  labels:
+    app: cmak
+data:
+  ZK_HOSTS: zookeeper:2181
+  APPLICATION_SECRET: letmein
+  KM_ARGS: -Djava.net.preferIPv4Stack=true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cmak
+  labels:
+    name: cmak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: cmak
+  template:
+    metadata:
+      labels:
+        name: cmak
+    spec:
+      containers:
+      - name: cmak
+        image: nanic/cmak:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cmak
+  labels:
+    name: cmak
+spec:
+  type: NodePort
+  ports:
+    - port: 9000
+      nodePort: 30090
+      name: http
+  selector:
+    name: cmak

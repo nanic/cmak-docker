@@ -1,34 +1,27 @@
-FROM openjdk:8-jdk-alpine
+FROM azul/zulu-openjdk-alpine:11
 
 MAINTAINER Naren <nanichowdary.ravilla@gmail.com>
 
-ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk/ \
-	ZK_HOSTS=localhost:2181\
-	KM_VERSION=2.0.0.2\
-	KM_CONFIGFILE="conf/application.conf"
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk/ \
+	ZK_HOSTS=zookeeper:2181 \
+	CMAK_VERSION=3.0.0.5\
+	CMAK_CONFIGFILE="conf/application.conf"
+
+WORKDIR /opt
 
 RUN echo "ipv6" >> /etc/modules &&\
 	apk add wget git wget unzip which curl tar &&\
 	apk add --no-cache bash &&\
-	mkdir -p /tmp &&\
-	cd /tmp &&\
-	git clone https://github.com/yahoo/kafka-manager &&\
-	cd /tmp/kafka-manager &&\
-	git checkout tags/${KM_VERSION}
+	wget https://github.com/yahoo/CMAK/releases/download/${CMAK_VERSION}/cmak-${CMAK_VERSION}.zip &&\
+	unzip -d /opt cmak-${CMAK_VERSION}.zip
 
-RUN cd /tmp/kafka-manager &&\
-	echo 'scalacOptions ++= Seq("-Xmax-classfile-name", "200")' >> build.sbt &&\
-	./sbt clean dist &&\
-	unzip -d / ./target/universal/kafka-manager-${KM_VERSION}.zip &&\
-	rm -fr /tmp/* /root/.sbt /root/.ivy2
+ADD start-cmak.sh /opt/cmak-${CMAK_VERSION}/start-cmak.sh
 
-ADD start-kafka-manager.sh /kafka-manager-${KM_VERSION}/start-kafka-manager.sh
+RUN touch /opt/cmak-${CMAK_VERSION}/cmak.pid &&\
+	chmod +x /opt/cmak-${CMAK_VERSION}/start-cmak.sh
 
-RUN touch /kafka-manager-${KM_VERSION}/kafka-manager.pid &&\
-	chmod +x /kafka-manager-${KM_VERSION}/start-kafka-manager.sh
-
-WORKDIR /kafka-manager-${KM_VERSION}
+WORKDIR /opt/cmak-${CMAK_VERSION}
 
 EXPOSE 9000
 
-ENTRYPOINT ["./start-kafka-manager.sh"]
+ENTRYPOINT ["./start-cmak.sh"]
