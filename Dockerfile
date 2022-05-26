@@ -1,11 +1,15 @@
 FROM azul/zulu-openjdk-alpine:11
 
-MAINTAINER Naren <nanichowdary.ravilla@gmail.com>
+LABEL maintainer="Naren Ravilla"
+
+ARG CMAK_VERSION="3.0.0.5"
+ARG ZK_HOSTS="zookeeper:2181"
+ARG CMAK_CONFIGFILE="conf/application.conf"
 
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk/ \
-	ZK_HOSTS=zookeeper:2181 \
-	CMAK_VERSION=3.0.0.5\
-	CMAK_CONFIGFILE="conf/application.conf"
+	ZK_HOSTS=$ZK_HOSTS \
+	CMAK_VERSION=$CMAK_VERSION \
+	CMAK_CONFIGFILE=$CMAK_CONFIGFILE
 
 WORKDIR /opt
 
